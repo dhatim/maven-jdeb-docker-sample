@@ -18,6 +18,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <dockerhost>localhost</dockerhost>
     </properties>
 
     <build>
@@ -107,6 +108,54 @@
                                 </data>
                             </dataSet>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jolokia</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.13.7</version>
+                <configuration>
+                    <verbose>true</verbose>
+                    <showLogs>true</showLogs>
+                    <images>
+                        <image>
+                            <name>dhatim/maven-jdeb-docker-sample-pkg</name>
+                            <build>
+                                <assembly>
+                                    <descriptor>pkg.xml</descriptor>
+                                    <dockerFileDir>pkg</dockerFileDir>
+                                </assembly>
+                            </build>
+                            <run>
+                                <ports>
+                                    <port>dropwizard.http.port:8080</port>
+                                </ports>
+                                <wait>
+                                    <http>
+                                        <url>http://${dockerhost}:${dropwizard.http.port}/hello</url>
+                                    </http>
+                                    <time>30000</time>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
