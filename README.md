@@ -1,1 +1,1 @@
-# maven-jdeb-docker
+# maven-jdeb-docker-sample
